@@ -5,6 +5,7 @@
 <title>ការត្រួតពិនិត្យគុណភាពគ្រាប់ស្វាយចន្ទី</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 body {
   font-family: "Noto Sans Khmer", "Khmer OS", "Arial Unicode MS", Arial, sans-serif;
@@ -81,10 +82,10 @@ h3{
   <h1>ការត្រួតពិនិត្យគុណភាពគ្រាប់ស្វាយចន្ទី</h1>
 
   <label>លេខកូដកសិករ</label>
-  <input type="text" id="farmerI">
+  <input type="text" id="farmerId">
 
   <label>ឈ្មោះកសិករ</label>
-  <input type="text" id="farmer" >
+  <input type="text" id="farmer">
 
   <label>កាលបរិច្ឆេទ</label>
   <input type="date" id="date">
@@ -125,8 +126,9 @@ h3{
 </div>
 
 <script>
-  let results = {};
-  function clearForm() {
+let results = {};
+
+function clearForm() {
   // Clear all input fields
   document.getElementById('farmerId').value = '';
   document.getElementById('farmer').value = '';
@@ -149,10 +151,6 @@ h3{
   
   console.log('Form cleared successfully');
 }
-
-// Base64 encoded Noto Sans Khmer font (simplified version for demo)
-// In production, you would use the complete font file
-const khmerFontBase64 = "YOUR_FONT_BASE64_HERE"; // You need to provide actual font
 
 function calculate() {
   const good = parseFloat(document.getElementById("goodMeat").value) || 0;
@@ -254,82 +252,14 @@ function generatePDFWithCanvas() {
   }
 }
 
-// Method 2: Using custom font with jsPDF
-async function generatePDFWithCustomFont() {
-  const loadingElement = document.getElementById('loading');
-  const pdfButton = document.querySelector('button[onclick="generatePDF()"]');
-  
-  loadingElement.style.display = 'block';
-  pdfButton.disabled = true;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  try {
-    
-    let y = 20;
-    
-    // Title
-    doc.setFontSize(16);
-    doc.text("របាយការណ៍ត្រួតពិនិត្យគុណភាពគ្រាប់ស្វាយចន្ទី", 50, 25);
-    
-    y = 45;
-
-    const fields = [
-      ["លេខកូដកសិករ", "farmerId"],
-      ["ឈ្មោះកសិករ", "farmer"],
-      ["កាលបរិច្ឆេទ", "date"],
-      ["ពូជគ្រាប់ស្វាយចន្ទី", "variety"],
-      ["ទម្ងន់សំណាកគ្រាប់ស្វាយចន្ទី (ក្រាម)", "sampleWeight"],
-      ["សំណើម (%)", "moisture"],
-      ["ចំនួនគ្រាប់ស្វាយចន្ទី (គ្រាប់)", "nutsCount"],
-      ["កម្ទេចកម្ទីមិនមែនគ្រាប់ស្វាយចន្ទី (ក្រាម)", "foreignMatter"],
-      ["បរិមាណសាច់ល្អ (ក្រាម)", "goodMeat"],
-      ["បរិមាណសាច់ចែក (ក្រាម)", "brokenMeat"],
-      ["ចំនួនគ្រាប់ខូច (គ្រាប់)", "badNutsCount"],
-      ["បរិមាណគ្រាប់ខូច (ក្រាម)", "badNutsWeight"]
-    ];
-
-    doc.setFontSize(10);
-    for (const [label, id] of fields) {
-      const value = document.getElementById(id).value || "-";
-      doc.text(`${label}: ${value}`, 20, y);
-      y += 8;
-    }
-
-    y += 5;
-    doc.text(`បរិមាណសាច់ល្អសរុប (ក្រាម): ${results.totalGood?.toFixed(2) || "0"}`, 20, y);
-    y += 8;
-    doc.text(`ផលធៀបសាច់ធៀបនឹងគ្រាប់ស្វាយចន្ទី (%): ${results.percent?.toFixed(2) || "0"}%`, 20, y);
-    
-    const farmerId = document.getElementById("farmerId").value || "NoID";
-    const dateValue = document.getElementById("date").value || "NoDate";
-    const fileName = `Cashew_Report_${farmerId}_${dateValue}.pdf`;
-    
-    doc.save(fileName);
-
-
-    
-
-    
-  } catch (error) {
-    console.error('Error with custom font:', error);
-    // Fallback to canvas method
-    generatePDFWithCanvas();
-  } finally {
-    loadingElement.style.display = 'none';
-    pdfButton.disabled = false;
-  }
-}
-
 // Main PDF generation function
 function generatePDF() {
-// Try the canvas method first (most reliable for Khmer text)
+  // Try the canvas method first (most reliable for Khmer text)
   generatePDFWithCanvas();
 }
 
-// Initialize calculation
-calculate();
+// Remove the auto-calculation on page load
+// calculate(); // This line is removed so form starts empty
 
 // Load html2canvas for better Khmer text support
 const html2canvasScript = document.createElement('script');
